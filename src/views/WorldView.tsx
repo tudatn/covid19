@@ -3,9 +3,12 @@ import {StyleSheet, View} from 'react-native';
 import {Container, Text} from 'native-base';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {MAPBOX_TOKEN, API_BASE_URL} from '../../env';
+import * as utils from '../utils';
 
 // @ts-ignore
 import marker from '../assets/red-circle-icon.png';
+// @ts-ignore
+import selectMarker from '../assets/purple-circle-icon.png';
 
 MapboxGL.setAccessToken(MAPBOX_TOKEN);
 
@@ -20,14 +23,25 @@ interface CountryData {
   lon: string;
 }
 
+interface CFeature extends GeoJSON.Feature {
+  properties: {
+    name: string;
+    recovered: string;
+    update: string;
+    active: string;
+    confirmed: string;
+    deaths: string;
+  };
+}
+
 export default function WorldView(props: any) {
-  const cameraRef = useRef(null);
+  const cameraRef = useRef<MapboxGL.Camera | null>(null);
   const mapRef = useRef(null);
 
-  const [features, setFeatures] = useState<CountryData[]>([]);
-  const [selectedFeature, setSelectedFeature] = useState<CountryData | null>(
-    null,
-  );
+  const [data, setData] = useState<CountryData[]>([]);
+  const [selectedFeature, setSelectedFeature] = useState<CFeature | null>(null);
+
+  const styleURL = 'mapbox://styles/tudatn/ck821xt1i2f5v1is5dfvdcluc';
 
   // get data
   useEffect(() => {
@@ -35,7 +49,7 @@ export default function WorldView(props: any) {
       .then((res) => res.json())
       .then(
         (data: CountryData[]) => {
-          setFeatures(data);
+          setData(data);
         },
         (error) => {
           console.log(error);
@@ -49,6 +63,11 @@ export default function WorldView(props: any) {
       properties: {
         name: data.country,
         level: setIconSizeSymbolLayer(+data.confirmed),
+        recovered: data.recovered,
+        update: data.update,
+        active: data.active,
+        confirmed: data.confirmed,
+        deaths: data.deaths,
       },
       geometry: {
         type: 'Point',
@@ -82,16 +101,27 @@ export default function WorldView(props: any) {
     return baseSize;
   }
 
-  function onPress(e: any) {
-    console.log(e.features);
+  function centerMapTo(point: [number, number]) {
+    cameraRef.current?.moveTo(point, 200);
+  }
+
+  function onSourceShapePress(e: any) {
+    const feature = e.features[0];
+    setSelectedFeature(feature);
+    centerMapTo(feature.geometry.coordinates);
+  }
+
+  function onMapPress() {
+    setSelectedFeature(null);
   }
 
   return (
     <View style={styles.container}>
       <MapboxGL.MapView
         ref={mapRef}
-        styleURL="mapbox://styles/tudatn/ck823d7tm2gj41is5i4kws2a2"
-        style={styles.map}>
+        styleURL={styleURL}
+        style={styles.map}
+        onPress={onMapPress}>
         <MapboxGL.Camera
           ref={cameraRef}
           defaultSettings={{
@@ -100,14 +130,43 @@ export default function WorldView(props: any) {
         />
         <MapboxGL.ShapeSource
           id={'data-world'}
-          shape={constructShapsourceFromData(features)}
-          onPress={onPress}>
+          shape={constructShapsourceFromData(data)}
+          onPress={onSourceShapePress}>
           <MapboxGL.SymbolLayer
             id="symbol-world"
             style={mapStyles.point as any}
           />
         </MapboxGL.ShapeSource>
+        {selectedFeature && (
+          <MapboxGL.ShapeSource id={'data-country'} shape={selectedFeature}>
+            <MapboxGL.SymbolLayer
+              id="symbol-country"
+              style={mapStyles.selectPoint as any}
+            />
+          </MapboxGL.ShapeSource>
+        )}
       </MapboxGL.MapView>
+      {selectedFeature && <InformationPanel feature={selectedFeature} />}
+    </View>
+  );
+}
+
+function InformationPanel(props: {feature: CFeature}) {
+  const feature = props.feature;
+  return (
+    <View style={styles.inforPanel}>
+      <Text style={{color: 'white', fontWeight: 'bold'}}>
+        {feature.properties.name}
+      </Text>
+      <Text style={{color: 'white'}}>
+        Confirmed: {utils.formatNumberString(feature.properties.confirmed)}
+      </Text>
+      <Text style={{color: 'white'}}>
+        Deaths: {utils.formatNumberString(feature.properties.deaths)}
+      </Text>
+      <Text style={{color: 'white'}}>
+        Recovered: {utils.formatNumberString(feature.properties.recovered)}
+      </Text>
     </View>
   );
 }
@@ -118,6 +177,13 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  inforPanel: {
+    padding: 10,
+    position: 'absolute',
+    backgroundColor: 'gray',
+    top: 10,
+    left: 10,
   },
 });
 
@@ -155,6 +221,15 @@ const mapStyles = {
     symbolZOrder: 'source',
     textField: ['get', 'name'],
     textColor: '#ffffff',
-    textSize: 10,
+    textSize: 12,
+  },
+  selectPoint: {
+    iconSize: 0.0085 * 5,
+    iconImage: selectMarker,
+    textField: ['get', 'name'],
+    textColor: '#ffffff',
+    textSize: 12,
+    textHaloColor: 'rgba(0, 0, 0, 0)',
+    textOffset: [0, -2],
   },
 };
