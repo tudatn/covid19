@@ -1,6 +1,6 @@
 import React, {useRef, useReducer, useState, useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {Container, Text} from 'native-base';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {Container, Text, Icon} from 'native-base';
 import MapboxGL from '@react-native-mapbox-gl/maps';
 import {MAPBOX_TOKEN, API_BASE_URL} from '../../env';
 import * as utils from '../utils';
@@ -45,16 +45,7 @@ export default function WorldView(props: any) {
 
   // get data
   useEffect(() => {
-    fetch(API_BASE_URL + '/data/world')
-      .then((res) => res.json())
-      .then(
-        (data: CountryData[]) => {
-          setData(data);
-        },
-        (error) => {
-          console.log(error);
-        },
-      );
+    fetchData();
   }, []);
 
   function generateFeatureFromData(data: CountryData) {
@@ -115,6 +106,19 @@ export default function WorldView(props: any) {
     setSelectedFeature(null);
   }
 
+  function fetchData() {
+    fetch(API_BASE_URL + '/data/world')
+      .then((res) => res.json())
+      .then(
+        (data: CountryData[]) => {
+          setData(data);
+        },
+        (error) => {
+          console.log(error);
+        },
+      );
+  }
+
   return (
     <View style={styles.container}>
       <MapboxGL.MapView
@@ -147,6 +151,15 @@ export default function WorldView(props: any) {
         )}
       </MapboxGL.MapView>
       {selectedFeature && <InformationPanel feature={selectedFeature} />}
+      <View style={{position: 'absolute', top: 10, right: 10}}>
+        <TouchableOpacity onPress={fetchData}>
+          <Icon
+            type="MaterialIcons"
+            name="refresh"
+            style={{fontSize: 24, color: 'white'}}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
