@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, ColorPropType} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import WorldView from './src/views/WorldView';
 import CountryView from './src/views/CountryView';
 import InfoView from './src/views/InfoView';
+import {Icon} from 'native-base';
 
 declare var global: {HermesInternal: null | {}};
 
@@ -30,6 +31,13 @@ function TabStack() {
         component={WorldView}
         options={{
           title: 'World View',
+          tabBarIcon: ({focused}) => (
+            <Icon
+              type="Ionicons"
+              name="ios-globe"
+              style={{color: focused ? 'orange' : 'gray'}}
+            />
+          ),
         }}
       />
       <Tab.Screen
@@ -37,6 +45,13 @@ function TabStack() {
         component={CountryView}
         options={{
           title: 'World View',
+          tabBarIcon: ({focused}) => (
+            <Icon
+              type="Ionicons"
+              name="ios-flag"
+              style={{color: focused ? 'orange' : 'gray'}}
+            />
+          ),
         }}
       />
       <Tab.Screen
@@ -44,6 +59,13 @@ function TabStack() {
         component={InfoView}
         options={{
           title: 'Info',
+          tabBarIcon: ({focused}) => (
+            <Icon
+              type="MaterialIcons"
+              name="info-outline"
+              style={{color: focused ? 'orange' : 'gray'}}
+            />
+          ),
         }}
       />
     </Tab.Navigator>
