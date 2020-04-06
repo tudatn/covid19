@@ -9,6 +9,7 @@ import {
   Input,
   Content,
   List,
+  Button,
 } from 'native-base';
 import {API_BASE_URL} from '../../env';
 import {CountryData} from 'src/types';
@@ -80,6 +81,15 @@ export default function CountryView(props: any) {
             />
           </TouchableOpacity>
         </Item>
+        <TouchableOpacity
+          onPress={fetchData}
+          style={{alignSelf: 'center', paddingLeft: 40}}>
+          <Icon
+            type="MaterialIcons"
+            name="refresh"
+            style={{fontSize: 24, color: 'white'}}
+          />
+        </TouchableOpacity>
       </Header>
       <Content padder>
         <List>
