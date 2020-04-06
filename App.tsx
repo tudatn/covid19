@@ -55,7 +55,7 @@ function TabStack() {
             <Icon
               type="Ionicons"
               name="ios-globe"
-              style={{color: focused ? 'red' : 'gray'}}
+              style={{color: focused ? 'orange' : 'gray'}}
             />
           ),
         }}
@@ -69,7 +69,7 @@ function TabStack() {
             <Icon
               type="Ionicons"
               name="ios-flag"
-              style={{color: focused ? 'red' : 'gray'}}
+              style={{color: focused ? 'orange' : 'gray'}}
             />
           ),
         }}
@@ -78,7 +78,7 @@ function TabStack() {
         name="Info"
         component={InfoView}
         options={{
-          title: 'Info',
+          title: 'Covid19',
           tabBarIcon: ({focused}) => (
             <Icon
               type="MaterialIcons"
