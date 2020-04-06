@@ -9,3 +9,10 @@ export interface DataType {
   lat?: string;
   lon?: string;
 }
+
+export interface TimeDataType {
+  country: string;
+  update: string;
+  confirmed: string;
+  deaths: string;
+}

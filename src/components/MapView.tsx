@@ -97,7 +97,6 @@ export default function MapView(props: {
 
   useEffect(() => {
     if (props.center) {
-      console.log(props.center);
       centerMapTo(props.center);
     }
   });
