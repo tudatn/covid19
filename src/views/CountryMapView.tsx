@@ -41,6 +41,16 @@ export default function CountryMapView(props: any) {
           />
         </TouchableOpacity>
       </View>
+      <View style={{position: 'absolute', bottom: 10, alignSelf: 'center'}}>
+        <TouchableOpacity>
+          <Icon
+            type="MaterialIcons"
+            name="insert-chart"
+            style={{fontSize: 45, color: 'white'}}
+          />
+          <Text style={{color: 'white', fontWeight: 'bold'}}>Statistic</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
