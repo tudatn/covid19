@@ -20,6 +20,8 @@ import CountryView from './src/views/CountryView';
 import InfoView from './src/views/InfoView';
 import {Icon} from 'native-base';
 import CountryMapView from './src/views/CountryMapView';
+import ShareView from './src/views/ShareView';
+import SettingView from './src/views/SettingView';
 
 declare var global: {HermesInternal: null | {}};
 
@@ -75,6 +77,20 @@ function TabStack() {
         }}
       />
       <Tab.Screen
+        name="Share"
+        component={ShareView}
+        options={{
+          title: 'Share',
+          tabBarIcon: ({focused}) => (
+            <Icon
+              type="Ionicons"
+              name="ios-people"
+              style={{color: focused ? 'orange' : 'gray'}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Info"
         component={InfoView}
         options={{
@@ -83,6 +99,20 @@ function TabStack() {
             <Icon
               type="MaterialIcons"
               name="info-outline"
+              style={{color: focused ? 'orange' : 'gray'}}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="About"
+        component={SettingView}
+        options={{
+          title: 'Setting',
+          tabBarIcon: ({focused}) => (
+            <Icon
+              type="MaterialIcons"
+              name="settings"
               style={{color: focused ? 'orange' : 'gray'}}
             />
           ),
