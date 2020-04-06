@@ -4,15 +4,11 @@ import {
   Container,
   Text,
   Header,
-  Body,
-  Title,
   Item,
   Icon,
   Input,
   Content,
   List,
-  ListItem,
-  Right,
 } from 'native-base';
 import {API_BASE_URL} from '../../env';
 import {CountryData} from 'src/types';
@@ -22,6 +18,7 @@ import * as utils from '../utils';
 export default function CountryView(props: any) {
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState<CountryData[]>([]);
+  const [searchData, setSearchData] = useState(data);
 
   function fetchData() {
     fetch(API_BASE_URL + '/data/world')
@@ -29,6 +26,7 @@ export default function CountryView(props: any) {
       .then(
         (data: CountryData[]) => {
           setData(data);
+          setSearchData(data);
         },
         (error) => {
           console.log(error);
@@ -36,20 +34,56 @@ export default function CountryView(props: any) {
       );
   }
 
+  function onChangeText(text: string) {
+    setSearchText(text);
+    search(text);
+  }
+
+  function clearSearchText() {
+    setSearchText('');
+    setSearchData(data);
+  }
+
+  function search(text: string) {
+    const searchTerm = text.toLowerCase();
+    let result: CountryData[] = [];
+    if (text === '') {
+      setSearchData(data);
+    } else {
+      data.forEach((item) => {
+        if (item.country.toLowerCase().includes(searchTerm)) {
+          result.push(item);
+        }
+      });
+      setSearchData(result);
+    }
+  }
+
   useEffect(() => {
     fetchData();
-  });
+  }, []);
   return (
     <Container>
       <Header searchBar rounded>
         <Item>
           <Icon name="ios-search" />
-          <Input placeholder="search" />
+          <Input
+            placeholder="search"
+            value={searchText}
+            onChangeText={onChangeText}
+          />
+          <TouchableOpacity onPress={clearSearchText}>
+            <Icon
+              type="MaterialIcons"
+              name="clear"
+              style={{color: searchText.length > 0 ? 'black' : 'gray'}}
+            />
+          </TouchableOpacity>
         </Item>
       </Header>
       <Content padder>
         <List>
-          {data
+          {searchData
             .sort((a, b) => +b.confirmed - +a.confirmed)
             .map((item, index) => {
               return <CountryInfo key={index} country={item} />;

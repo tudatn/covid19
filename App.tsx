@@ -44,7 +44,7 @@ function TabStack() {
         name="Country"
         component={CountryView}
         options={{
-          title: 'World View',
+          title: 'Country View',
           tabBarIcon: ({focused}) => (
             <Icon
               type="Ionicons"
