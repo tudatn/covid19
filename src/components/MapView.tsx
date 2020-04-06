@@ -95,12 +95,6 @@ export default function MapView(props: {
     setSelectedFeature(null);
   }
 
-  useEffect(() => {
-    if (props.center) {
-      centerMapTo(props.center);
-    }
-  });
-
   return (
     <View style={styles.container}>
       <MapboxGL.MapView
@@ -113,6 +107,7 @@ export default function MapView(props: {
           defaultSettings={{
             zoomLevel: 2,
           }}
+          centerCoordinate={props.center}
         />
         <MapboxGL.ShapeSource
           id={'data-world'}
