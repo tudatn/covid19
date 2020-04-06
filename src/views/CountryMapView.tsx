@@ -8,11 +8,12 @@ import {DataType} from '../types';
 
 import MapView from '../components/MapView';
 
-export default function WorldView(props: any) {
+export default function CountryMapView(props: any) {
+  const {country} = props.route.params;
   const [data, setData] = useState<DataType[]>([]);
 
   function fetchData() {
-    fetch(API_BASE_URL + '/data/world')
+    fetch(API_BASE_URL + '/data/country?name=' + country.country)
       .then((res) => res.json())
       .then(
         (data: DataType[]) => {
@@ -30,7 +31,7 @@ export default function WorldView(props: any) {
 
   return (
     <View style={styles.container}>
-      <MapView data={data} />
+      <MapView data={data} center={[+country.lon!, +country.lat!]} />
       <View style={{position: 'absolute', top: 10, right: 10}}>
         <TouchableOpacity onPress={fetchData}>
           <Icon

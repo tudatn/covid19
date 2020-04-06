@@ -9,23 +9,23 @@ import {
   Input,
   Content,
   List,
-  Button,
 } from 'native-base';
 import {API_BASE_URL} from '../../env';
-import {CountryData} from 'src/types';
-
+import {DataType} from '../types';
 import * as utils from '../utils';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 export default function CountryView(props: any) {
   const [searchText, setSearchText] = useState('');
-  const [data, setData] = useState<CountryData[]>([]);
+  const [data, setData] = useState<DataType[]>([]);
   const [searchData, setSearchData] = useState(data);
+  const navigation = props.navigation;
 
   function fetchData() {
     fetch(API_BASE_URL + '/data/world')
       .then((res) => res.json())
       .then(
-        (data: CountryData[]) => {
+        (data: DataType[]) => {
           setData(data);
           setSearchData(data);
         },
@@ -47,7 +47,7 @@ export default function CountryView(props: any) {
 
   function search(text: string) {
     const searchTerm = text.toLowerCase();
-    let result: CountryData[] = [];
+    let result: DataType[] = [];
     if (text === '') {
       setSearchData(data);
     } else {
@@ -96,7 +96,13 @@ export default function CountryView(props: any) {
           {searchData
             .sort((a, b) => +b.confirmed - +a.confirmed)
             .map((item, index) => {
-              return <CountryInfo key={index} country={item} />;
+              return (
+                <CountryInfo
+                  key={index}
+                  country={item}
+                  navigation={navigation}
+                />
+              );
             })}
         </List>
       </Content>
@@ -104,10 +110,14 @@ export default function CountryView(props: any) {
   );
 }
 
-function CountryInfo(props: {country: CountryData}) {
+function CountryInfo(props: {country: DataType; navigation: any}) {
   const country = props.country;
   return (
-    <TouchableOpacity style={styles.rowButton}>
+    <TouchableOpacity
+      style={styles.rowButton}
+      onPress={() =>
+        props.navigation.navigate('CountryMapView', {country: props.country})
+      }>
       <View style={styles.itemRow}>
         <Text style={{fontWeight: 'bold'}}>{country.country}</Text>
         <Icon name="ios-arrow-forward" style={{fontSize: 16, color: 'gray'}} />

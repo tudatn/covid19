@@ -12,16 +12,36 @@ import React from 'react';
 import {StyleSheet, ColorPropType} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createStackNavigator} from '@react-navigation/stack';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 // import Views
 import WorldView from './src/views/WorldView';
 import CountryView from './src/views/CountryView';
 import InfoView from './src/views/InfoView';
 import {Icon} from 'native-base';
+import CountryMapView from './src/views/CountryMapView';
 
 declare var global: {HermesInternal: null | {}};
 
 const Tab = createBottomTabNavigator();
+const CountryStack = createStackNavigator();
+
+function CountryViewStack() {
+  return (
+    <CountryStack.Navigator initialRouteName="CountryList">
+      <CountryStack.Screen
+        name="CountryList"
+        component={CountryView}
+        options={{title: 'covid19@countries', headerShown: false}}
+      />
+      <CountryStack.Screen
+        name="CountryMapView"
+        component={CountryMapView}
+        options={{title: 'Country Map View'}}
+      />
+    </CountryStack.Navigator>
+  );
+}
 
 function TabStack() {
   return (
@@ -35,21 +55,21 @@ function TabStack() {
             <Icon
               type="Ionicons"
               name="ios-globe"
-              style={{color: focused ? 'orange' : 'gray'}}
+              style={{color: focused ? 'red' : 'gray'}}
             />
           ),
         }}
       />
       <Tab.Screen
         name="Country"
-        component={CountryView}
+        component={CountryViewStack}
         options={{
           title: 'Country View',
           tabBarIcon: ({focused}) => (
             <Icon
               type="Ionicons"
               name="ios-flag"
-              style={{color: focused ? 'orange' : 'gray'}}
+              style={{color: focused ? 'red' : 'gray'}}
             />
           ),
         }}
