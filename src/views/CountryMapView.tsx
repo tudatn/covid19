@@ -166,6 +166,18 @@ function StatisticView(props: any) {
         width: Dimensions.get('window').width,
       }}>
       <Content>
+        {confirmedData.length > 0 && (
+          <View style={{paddingVertical: 10}}>
+            <Text style={{color: 'red', fontWeight: 'bold'}}>
+              Death rate (deaths/confirmed):{' '}
+              {(
+                (+deathsData[deathsData.length - 1] * 100) /
+                +confirmedData[confirmedData.length - 1]
+              ).toFixed(2)}{' '}
+              %
+            </Text>
+          </View>
+        )}
         {renderChart(lables, confirmedData, 'Confirmed by Date')}
         {renderChart(lables, deathsData, 'Deaths by Date')}
       </Content>

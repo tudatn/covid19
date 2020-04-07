@@ -203,6 +203,7 @@ const mapStyles = {
     textField: ['get', 'name'],
     textColor: '#ffffff',
     textSize: 12,
+    iconAllowOverlap: true,
   },
   selectPoint: {
     iconSize: 0.0085 * 5,
