@@ -47,7 +47,12 @@ export default function ShareView(props: any) {
 
   const deviceId = getUniqueId();
 
+  function validateJokeContent() {
+    return content.length < 250;
+  }
+
   function addJoke() {
+    if (!validateJokeContent()) return;
     if (myJoke) {
       if (content == '')
         jokesCollection
@@ -67,6 +72,7 @@ export default function ShareView(props: any) {
             setShowForm(false);
           });
     } else {
+      if (content == '') return;
       const id = jokesCollection.doc().id;
       const joke = {
         content: content,
@@ -105,7 +111,6 @@ export default function ShareView(props: any) {
         documentSnapshots.forEach((doc) => {
           jokes.push(doc.data() as any);
         });
-        console.log(jokes);
         setJokes(jokes);
         setLastVisible(lastVisible);
         setmyJoke(undefined);
@@ -172,8 +177,9 @@ export default function ShareView(props: any) {
             </Form>
             <TouchableOpacity
               onPress={addJoke}
+              disabled={!validateJokeContent()}
               style={{
-                backgroundColor: 'green',
+                backgroundColor: validateJokeContent() ? 'green' : 'gray',
                 width: 100,
                 padding: 10,
                 alignSelf: 'flex-end',
