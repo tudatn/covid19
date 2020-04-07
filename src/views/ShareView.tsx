@@ -48,25 +48,49 @@ export default function ShareView(props: any) {
   const deviceId = getUniqueId();
 
   function addJoke() {
-    const id = jokesCollection.doc().id;
-    const joke = {
-      content: content,
-      id: id,
-      created: firestore.Timestamp.now(),
-      owner: deviceId,
-      like: 0,
-    };
-    jokesCollection
-      .doc()
-      .set(joke)
-      .then(() => {
-        setmyJoke(joke);
-        setShowForm(false);
-      });
+    if (myJoke) {
+      if (content == '')
+        jokesCollection
+          .doc(myJoke.id)
+          .delete()
+          .then(() => {
+            setmyJoke(undefined);
+            setShowForm(false);
+          })
+          .catch((error) => console.log(error));
+      else
+        jokesCollection
+          .doc(myJoke.id)
+          .update({content})
+          .then(() => {
+            setmyJoke({...myJoke, content});
+            setShowForm(false);
+          });
+    } else {
+      const id = jokesCollection.doc().id;
+      const joke = {
+        content: content,
+        id: id,
+        created: firestore.Timestamp.now(),
+        owner: deviceId,
+        like: 0,
+      };
+      jokesCollection
+        .doc(id)
+        .set(joke)
+        .then(() => {
+          setmyJoke(joke);
+          setShowForm(false);
+        });
+    }
   }
 
   function onChangeText(text: string) {
     setContent(text);
+  }
+
+  function editJoke() {
+    setShowForm(true);
   }
 
   function loadJokes() {
@@ -81,6 +105,7 @@ export default function ShareView(props: any) {
         documentSnapshots.forEach((doc) => {
           jokes.push(doc.data() as any);
         });
+        console.log(jokes);
         setJokes(jokes);
         setLastVisible(lastVisible);
         setmyJoke(undefined);
@@ -94,31 +119,45 @@ export default function ShareView(props: any) {
 
   return (
     <Container>
+      <TouchableOpacity
+        style={{position: 'absolute', top: 10, right: 10, zIndex: 10}}
+        onPress={() => setShowForm(!showForm)}>
+        <Icon
+          type="Ionicons"
+          name={
+            showForm ? 'ios-close-circle-outline' : 'ios-add-circle-outline'
+          }
+          style={{color: 'orange'}}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={loadJokes}
+        style={{position: 'absolute', top: 10, left: 10, zIndex: 10}}>
+        <Icon
+          type="MaterialCommunityIcons"
+          name="reload"
+          style={{color: 'green'}}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={loadJokes}
+        style={{position: 'absolute', bottom: 10, right: 10, zIndex: 10}}>
+        <Icon
+          type="MaterialCommunityIcons"
+          name="help-circle-outline"
+          style={{color: 'green'}}
+        />
+      </TouchableOpacity>
+      <View
+        style={{
+          alignItems: 'center',
+          backgroundColor: 'rgb(245, 244, 244)',
+          paddingVertical: 10,
+        }}>
+        <Text>Covid19 makes me sad ...</Text>
+        <Text>but a joke can make my day</Text>
+      </View>
       <Content padder>
-        <View style={{alignItems: 'center'}}>
-          <Text>Covid19 makes me sad ...</Text>
-          <Text>but a joke can make my day</Text>
-        </View>
-        <TouchableOpacity
-          style={{position: 'absolute', top: 10, right: 10}}
-          onPress={() => setShowForm(!showForm)}>
-          <Icon
-            type="Ionicons"
-            name={
-              showForm ? 'ios-close-circle-outline' : 'ios-add-circle-outline'
-            }
-            style={{color: 'orange'}}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={loadJokes}
-          style={{position: 'absolute', top: 10, left: 10}}>
-          <Icon
-            type="MaterialCommunityIcons"
-            name="reload"
-            style={{color: 'green'}}
-          />
-        </TouchableOpacity>
         {showForm && (
           <>
             <Form>
@@ -139,12 +178,15 @@ export default function ShareView(props: any) {
                 padding: 10,
                 alignSelf: 'flex-end',
                 marginTop: 5,
+                borderRadius: 20,
               }}>
               <Text style={{color: 'white', textAlign: 'center'}}>Share</Text>
             </TouchableOpacity>
           </>
         )}
-        {myJoke && <Joke joke={myJoke} />}
+        {myJoke && !showForm && (
+          <Joke joke={myJoke} current={true} editJoke={editJoke} />
+        )}
         {jokes.map((joke) => {
           return <Joke key={joke.id} joke={joke} />;
         })}
@@ -153,7 +195,11 @@ export default function ShareView(props: any) {
   );
 }
 
-function Joke(props: {joke: JokeType}) {
+function Joke(props: {
+  joke: JokeType;
+  current?: boolean;
+  editJoke?: () => void;
+}) {
   const jokesCollection = firestore().collection('jokes');
   const [like, setLike] = useState(props.joke.like);
   const [didLike, setDidLike] = useState(false);
@@ -167,10 +213,14 @@ function Joke(props: {joke: JokeType}) {
     setDidLike(!didLike);
   }
 
-  useState(() => {
+  function editJoke() {
+    if (props.editJoke) props.editJoke();
+  }
+
+  useEffect(() => {
     // do nothing
-    return () => jokesCollection.doc(props.joke.id).update({like});
-  });
+    jokesCollection.doc(props.joke.id).update({like});
+  }, [like]);
   return (
     <Card>
       <CardItem>
@@ -198,8 +248,8 @@ function Joke(props: {joke: JokeType}) {
           </TouchableOpacity>
         </Left>
         <Right>
-          {props.joke.owner == getUniqueId() && (
-            <TouchableOpacity>
+          {props.current && props.joke.owner == getUniqueId() && (
+            <TouchableOpacity onPress={editJoke}>
               <Text>Edit</Text>
             </TouchableOpacity>
           )}
