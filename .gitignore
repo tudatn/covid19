@@ -64,3 +64,6 @@ buck-out/
 
 # environment variables
 env.ts
+
+# firebase
+android/app/google-services.json
