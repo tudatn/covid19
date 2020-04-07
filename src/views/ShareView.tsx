@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import {
   Form,
   Textarea,
@@ -20,6 +20,7 @@ import firestore, {
   FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore';
 import {getUniqueId} from 'react-native-device-info';
+import BulletText from '../components/BulletText';
 
 interface ReactionType {
   emoji: string;
@@ -44,11 +45,16 @@ export default function ShareView(props: any) {
     FirebaseFirestoreTypes.QueryDocumentSnapshot
   >();
   const [showForm, setShowForm] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const deviceId = getUniqueId();
 
   function validateJokeContent() {
     return content.length < 250;
+  }
+
+  function closeJokeRulePanel() {
+    setShowHelp(false);
   }
 
   function addJoke() {
@@ -145,7 +151,7 @@ export default function ShareView(props: any) {
         />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={loadJokes}
+        onPress={() => setShowHelp(true)}
         style={{position: 'absolute', bottom: 10, right: 10, zIndex: 10}}>
         <Icon
           type="MaterialCommunityIcons"
@@ -162,6 +168,7 @@ export default function ShareView(props: any) {
         <Text>Covid19 makes me sad ...</Text>
         <Text>but a joke can make my day</Text>
       </View>
+      <JokeRule visible={showHelp} closeJokeRulePanel={closeJokeRulePanel} />
       <Content padder>
         {showForm && (
           <>
@@ -262,6 +269,49 @@ function Joke(props: {
         </Right>
       </CardItem>
     </Card>
+  );
+}
+
+function JokeRule(props: {visible: boolean; closeJokeRulePanel: () => void}) {
+  return (
+    <Modal animationType="slide" transparent={true} visible={props.visible}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          backgroundColor: 'rgba(255, 252, 255, 0.85)',
+          justifyContent: 'center',
+        }}>
+        <Text>Please follow some rules to have good jokes</Text>
+        <BulletText
+          color="green"
+          icon="ios-checkmark-circle-outline"
+          text="Length of less than 250 characters"
+        />
+        <BulletText
+          color="green"
+          icon="ios-checkmark-circle-outline"
+          text="Only 25 latest jokes are shown"
+        />
+        <BulletText
+          color="green"
+          icon="ios-checkmark-circle-outline"
+          text="No more than 5 jokes/ day"
+        />
+        <TouchableOpacity
+          onPress={props.closeJokeRulePanel}
+          style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            backgroundColor: 'orange',
+            borderRadius: 20,
+            padding: 10,
+          }}>
+          <Text style={{color: 'white'}}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
   );
 }
 
