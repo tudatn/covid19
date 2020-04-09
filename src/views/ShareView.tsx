@@ -47,6 +47,9 @@ export default function ShareView(props: any) {
   const [showForm, setShowForm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  // show top 5 jokes
+  const [topJokes, setTopJokes] = useState<JokeType[]>([]);
+
   const deviceId = getUniqueId();
 
   function validateJokeContent() {
@@ -105,6 +108,20 @@ export default function ShareView(props: any) {
     setShowForm(true);
   }
 
+  function loadTopJokes(top: number) {
+    jokesCollection
+      .orderBy('like', 'desc')
+      .limit(top)
+      .get()
+      .then((documentSnapshots) => {
+        const jokes: JokeType[] = [];
+        documentSnapshots.forEach((doc) => {
+          jokes.push(doc.data() as any);
+        });
+        setTopJokes(jokes);
+      });
+  }
+
   function loadJokes() {
     jokesCollection
       .orderBy('created', 'desc')
@@ -126,6 +143,7 @@ export default function ShareView(props: any) {
 
   useEffect(() => {
     loadJokes();
+    loadTopJokes(5);
   }, []);
 
   return (
@@ -200,6 +218,12 @@ export default function ShareView(props: any) {
         {myJoke && !showForm && (
           <Joke joke={myJoke} current={true} editJoke={editJoke} />
         )}
+        <Text style={{fontWeight: 'bold'}}>Top jokes</Text>
+        {topJokes.map((joke) => {
+          return <Joke key={joke.id} joke={joke} />;
+        })}
+        <Text style={{fontWeight: 'bold'}}>Latest jokes</Text>
+
         {jokes.map((joke) => {
           return <Joke key={joke.id} joke={joke} />;
         })}
