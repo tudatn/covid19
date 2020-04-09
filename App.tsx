@@ -108,7 +108,7 @@ function TabStack() {
         name="About"
         component={SettingView}
         options={{
-          title: 'Setting',
+          title: 'About',
           tabBarIcon: ({focused}) => (
             <Icon
               type="MaterialIcons"
