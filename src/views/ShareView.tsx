@@ -53,7 +53,7 @@ export default function ShareView(props: any) {
   const deviceId = getUniqueId();
 
   function validateJokeContent() {
-    return content.length < 250;
+    return content.length < 500;
   }
 
   function closeJokeRulePanel() {
@@ -108,6 +108,14 @@ export default function ShareView(props: any) {
     setShowForm(true);
   }
 
+  function addLike(joke: JokeType) {
+    jokesCollection.doc(joke.id).update({like: ++joke.like});
+  }
+
+  function removeLike(joke: JokeType) {
+    jokesCollection.doc(joke.id).update({like: --joke.like});
+  }
+
   function loadTopJokes(top: number) {
     jokesCollection
       .orderBy('like', 'desc')
@@ -141,9 +149,13 @@ export default function ShareView(props: any) {
       });
   }
 
-  useEffect(() => {
+  function reloadJokes() {
     loadJokes();
     loadTopJokes(5);
+  }
+
+  useEffect(() => {
+    reloadJokes();
   }, []);
 
   return (
@@ -160,7 +172,7 @@ export default function ShareView(props: any) {
         />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={loadJokes}
+        onPress={reloadJokes}
         style={{position: 'absolute', top: 10, left: 10, zIndex: 10}}>
         <Icon
           type="MaterialCommunityIcons"
@@ -216,16 +228,36 @@ export default function ShareView(props: any) {
           </>
         )}
         {myJoke && !showForm && (
-          <Joke joke={myJoke} current={true} editJoke={editJoke} />
+          <Joke
+            joke={myJoke}
+            current={true}
+            editJoke={editJoke}
+            addLike={addLike}
+            removeLike={removeLike}
+          />
         )}
         <Text style={{fontWeight: 'bold'}}>Top jokes</Text>
         {topJokes.map((joke) => {
-          return <Joke key={joke.id} joke={joke} />;
+          return (
+            <Joke
+              key={joke.id}
+              joke={joke}
+              addLike={addLike}
+              removeLike={removeLike}
+            />
+          );
         })}
         <Text style={{fontWeight: 'bold'}}>Latest jokes</Text>
 
         {jokes.map((joke) => {
-          return <Joke key={joke.id} joke={joke} />;
+          return (
+            <Joke
+              key={joke.id}
+              joke={joke}
+              addLike={addLike}
+              removeLike={removeLike}
+            />
+          );
         })}
       </Content>
     </Container>
@@ -236,16 +268,19 @@ function Joke(props: {
   joke: JokeType;
   current?: boolean;
   editJoke?: () => void;
+  addLike: (joke: JokeType) => void;
+  removeLike: (joke: JokeType) => void;
 }) {
-  const jokesCollection = firestore().collection('jokes');
-  const [like, setLike] = useState(props.joke.like);
   const [didLike, setDidLike] = useState(false);
 
+  const isContentTooLong = props.joke.content.length > 100;
+  const [showAll, setShowAll] = useState(isContentTooLong);
+
   function addLike() {
-    if (didLike == true) {
-      setLike((like) => like - 1);
+    if (didLike) {
+      props.removeLike(props.joke);
     } else {
-      setLike((like) => like + 1);
+      props.addLike(props.joke);
     }
     setDidLike(!didLike);
   }
@@ -254,15 +289,15 @@ function Joke(props: {
     if (props.editJoke) props.editJoke();
   }
 
-  useEffect(() => {
-    // do nothing
-    jokesCollection.doc(props.joke.id).update({like});
-  }, [like]);
   return (
     <Card>
       <CardItem>
         <Body>
-          <Text>{props.joke.content}</Text>
+          <Text>
+            {showAll
+              ? props.joke.content.slice(0, 100) + '...'
+              : props.joke.content}
+          </Text>
         </Body>
       </CardItem>
       <CardItem>
@@ -281,13 +316,22 @@ function Joke(props: {
               name="sentiment-very-satisfied"
               style={{color: didLike ? 'orange' : 'pink'}}
             />
-            {like > 0 && <Text style={{paddingRight: 5}}>{like}</Text>}
+            {props.joke.like > 0 && (
+              <Text style={{paddingRight: 5}}>{props.joke.like}</Text>
+            )}
           </TouchableOpacity>
         </Left>
         <Right>
           {props.current && props.joke.owner == getUniqueId() && (
             <TouchableOpacity onPress={editJoke}>
               <Text>Edit</Text>
+            </TouchableOpacity>
+          )}
+          {isContentTooLong && (
+            <TouchableOpacity onPress={() => setShowAll(!showAll)}>
+              <Icon
+                name={showAll ? 'ios-arrow-dropdown' : 'ios-arrow-dropup'}
+              />
             </TouchableOpacity>
           )}
         </Right>
@@ -307,21 +351,23 @@ function JokeRule(props: {visible: boolean; closeJokeRulePanel: () => void}) {
           justifyContent: 'center',
         }}>
         <Text>Please follow some rules to have good jokes</Text>
-        <BulletText
-          color="green"
-          icon="ios-checkmark-circle-outline"
-          text="Length of less than 250 characters"
-        />
-        <BulletText
-          color="green"
-          icon="ios-checkmark-circle-outline"
-          text="Only 25 latest jokes are shown"
-        />
-        <BulletText
-          color="green"
-          icon="ios-checkmark-circle-outline"
-          text="No more than 5 jokes/ day"
-        />
+        <View>
+          <BulletText
+            color="green"
+            icon="ios-checkmark-circle-outline"
+            text="Length of less than 500 characters"
+          />
+          <BulletText
+            color="green"
+            icon="ios-checkmark-circle-outline"
+            text="Only 25 latest jokes are shown"
+          />
+          <BulletText
+            color="green"
+            icon="ios-checkmark-circle-outline"
+            text="No more than 5 jokes/ day"
+          />
+        </View>
         <TouchableOpacity
           onPress={props.closeJokeRulePanel}
           style={{
