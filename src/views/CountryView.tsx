@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, TouchableOpacity, FlatList} from 'react-native';
 import {
   Container,
   Text,
@@ -19,13 +19,17 @@ export default function CountryView(props: any) {
   const [searchText, setSearchText] = useState('');
   const [data, setData] = useState<DataType[]>([]);
   const [searchData, setSearchData] = useState(data);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = props.navigation;
 
   function fetchData() {
+    setIsLoading(true);
     fetch(API_BASE_URL + '/data/world')
       .then((res) => res.json())
       .then(
         (data: DataType[]) => {
+          data.sort((a, b) => +b.confirmed - +a.confirmed);
+          setIsLoading(false);
           setData(data);
           setSearchData(data);
         },
@@ -91,21 +95,17 @@ export default function CountryView(props: any) {
           />
         </TouchableOpacity>
       </Header>
-      <Content padder>
-        <List>
-          {searchData
-            .sort((a, b) => +b.confirmed - +a.confirmed)
-            .map((item, index) => {
-              return (
-                <CountryInfo
-                  key={index}
-                  country={item}
-                  navigation={navigation}
-                />
-              );
-            })}
-        </List>
-      </Content>
+      <View style={{padding: 10}}>
+        <FlatList
+          data={searchData}
+          renderItem={({item}) => (
+            <CountryInfo country={item} navigation={navigation} />
+          )}
+          onRefresh={fetchData}
+          refreshing={isLoading}
+          keyExtractor={(item) => item.country}
+        />
+      </View>
     </Container>
   );
 }
