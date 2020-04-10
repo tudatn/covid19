@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.covid19",
+    package = "com.thinkdeep.covid19",
 )
 
 android_resource(
     name = "res",
-    package = "com.covid19",
+    package = "com.thinkdeep.covid19",
     res = "src/main/res",
 )
 

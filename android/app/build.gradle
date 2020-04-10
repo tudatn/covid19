@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.covid19"
+        applicationId "com.thinkdeep.covid19"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
