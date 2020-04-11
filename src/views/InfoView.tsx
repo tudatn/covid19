@@ -1,10 +1,12 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Container, Text, Content, Tab, Header, Tabs, Icon} from 'native-base';
+import {useSafeArea} from 'react-native-safe-area-context';
 
 export default function InfoView(props: any) {
+  const insets = useSafeArea();
   return (
-    <Container>
+    <Container style={{paddingTop: insets.top}}>
       <Tabs>
         <Tab heading="Overview">
           <OverView />

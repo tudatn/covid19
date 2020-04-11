@@ -4,13 +4,10 @@ import {
   Form,
   Textarea,
   Container,
-  Header,
   Content,
-  Title,
   Left,
   Right,
   Body,
-  Button,
   Text,
   Card,
   CardItem,
@@ -21,6 +18,7 @@ import firestore, {
 } from '@react-native-firebase/firestore';
 import {getUniqueId} from 'react-native-device-info';
 import BulletText from '../components/BulletText';
+import {useSafeArea} from 'react-native-safe-area-context';
 
 interface ReactionType {
   emoji: string;
@@ -46,6 +44,7 @@ export default function ShareView(props: any) {
   >();
   const [showForm, setShowForm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const insets = useSafeArea();
 
   // show top 5 jokes
   const [topJokes, setTopJokes] = useState<JokeType[]>([]);
@@ -159,7 +158,7 @@ export default function ShareView(props: any) {
   }, []);
 
   return (
-    <Container>
+    <Container style={{marginTop: insets.top}}>
       <TouchableOpacity
         style={{position: 'absolute', top: 10, right: 10, zIndex: 10}}
         onPress={() => setShowForm(!showForm)}>
