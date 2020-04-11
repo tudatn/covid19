@@ -53,6 +53,7 @@ target 'covid19' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+  pod 'NoUseFrameworks-MapboxMobileEvents',  :podspec => '../node_modules/@react-native-mapbox-gl/maps/ios/NoUseFrameworks-MapboxMobileEvents/NoUseFrameworks-MapboxMobileEvents.podspec.json'
 
   target 'covid19Tests' do
     inherit! :complete
