@@ -67,3 +67,4 @@ env.ts
 
 # firebase
 android/app/google-services.json
+ios/GoogleService-Info.plist
