@@ -1,19 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View, TouchableOpacity, FlatList} from 'react-native';
 import {
-  Container,
-  Text,
-  Header,
-  Item,
-  Icon,
-  Input,
-  Content,
-  List,
-} from 'native-base';
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  FlatList,
+  Platform,
+} from 'react-native';
+import {Container, Text, Header, Item, Icon, Input} from 'native-base';
 import {API_BASE_URL} from '../../env';
 import {DataType} from '../types';
 import * as utils from '../utils';
-import {StackNavigationProp} from '@react-navigation/stack';
 
 export default function CountryView(props: any) {
   const [searchText, setSearchText] = useState('');
@@ -91,7 +87,10 @@ export default function CountryView(props: any) {
           <Icon
             type="MaterialIcons"
             name="refresh"
-            style={{fontSize: 24, color: 'white'}}
+            style={{
+              fontSize: 24,
+              color: Platform.OS === 'ios' ? 'gray' : 'white',
+            }}
           />
         </TouchableOpacity>
       </Header>
