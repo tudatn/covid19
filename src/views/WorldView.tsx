@@ -3,6 +3,7 @@ import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {Icon} from 'native-base';
 import {API_BASE_URL} from '../../env';
 import {DataType} from '../types';
+import SplashScreen from 'react-native-splash-screen';
 
 import MapView from '../components/MapView';
 import {useSafeArea} from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ export default function WorldView(props: any) {
 
   useEffect(() => {
     fetchData();
+    SplashScreen.hide();
   }, []);
 
   return (
